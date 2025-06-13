@@ -47,7 +47,7 @@ function rollDice() {
     }
   }
 
-  // Second pass: if no success gain, try to remove a Bane
+  // Second pass: if no success gain, try to remove a Bane by upgrading a 1
   if (bestGain === 0 && bonus > 0) {
     for (let i = 0; i < allRolls.length; i++) {
       if (allRolls[i].value === 1 && (allRolls[i].value + bonus) > 1) {
@@ -63,8 +63,9 @@ function rollDice() {
     allRolls[bestIndex].usedBonus = true;
   }
 
-  // Check for Bane
-  const hasBane = allRolls.some(roll => roll.modified === 1);
+  // Check for Bane:
+  // If any die has original roll 1 AND modified roll is still 1 (not upgraded), Bane triggers.
+  const hasBane = allRolls.some(roll => roll.value === 1 && roll.modified === 1);
 
   // Calculate total successes
   let totalSuccesses = 0;
