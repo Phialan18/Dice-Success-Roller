@@ -35,18 +35,18 @@ function rollDice() {
   let bestIndex = -1;
   let bestGain = 0;
 
-  // 1. If any die is 1, prioritize upgrading that die to deny Bane
+  // 1. Prioritize upgrading a 1 to deny Bane
   if (bonus > 0) {
     for (let i = 0; i < allRolls.length; i++) {
       if (allRolls[i].value === 1) {
         bestIndex = i;
-        bestGain = 0; // no success gain needed, priority is deny bane
+        bestGain = 0;
         break;
       }
     }
   }
 
-  // 2. If no 1 to upgrade, try to find best success gain
+  // 2. If no 1 to upgrade, try to maximize success gain
   if (bestIndex === -1) {
     for (let i = 0; i < allRolls.length; i++) {
       const original = allRolls[i].value;
@@ -61,18 +61,18 @@ function rollDice() {
     }
   }
 
-  // Apply bonus if chosen
+  // Apply bonus if any
   if (bestIndex !== -1 && bonus > 0) {
     allRolls[bestIndex].modified += bonus;
     allRolls[bestIndex].usedBonus = true;
 
-    // Check if bonus upgraded a 1 → deny bane
+    // Check if bonus upgraded a 1 (deny bane)
     if (allRolls[bestIndex].value === 1 && allRolls[bestIndex].modified > 1) {
       bonusUsedToDenyBane = true;
     }
   }
 
-  // Check for Bane: any original 1 still unmodified
+  // Check for Bane: any die originally 1 and still 1 after bonus
   const hasBane = allRolls.some(roll => roll.value === 1 && roll.modified === 1);
 
   // Calculate total successes
@@ -87,10 +87,11 @@ function rollDice() {
 
   resultHTML += `</ul><h3>Total Successes: ${totalSuccesses}</h3>`;
 
-  if (hasBane) {
-    resultHTML += `<h3 style="color: red;">⚠️ Bane triggered (at least one die rolled a 1)</h3>`;
-  } else if (bonusUsedToDenyBane) {
+  // Corrected message order:
+  if (bonusUsedToDenyBane) {
     resultHTML += `<h3 style="color: orange;">🛡️ Bane denied (1 was upgraded by bonus)</h3>`;
+  } else if (hasBane) {
+    resultHTML += `<h3 style="color: red;">⚠️ Bane triggered (at least one die rolled a 1)</h3>`;
   } else {
     resultHTML += `<h3 style="color: green;">No Bane</h3>`;
   }
