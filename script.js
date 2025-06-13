@@ -61,11 +61,13 @@ function rollDice() {
   // 3. Apply the bonus if valid index
   if (bestIndex !== -1 && bonus > 0) {
     const roll = allRolls[bestIndex];
-    roll.modified = roll.value + bonus;
-    roll.usedBonus = true;
+    if (!roll.usedBonus) {
+      roll.modified = roll.value + bonus;
+      roll.usedBonus = true;
 
-    if (roll.value === 1 && roll.modified > 1) {
-      bonusUsedToDenyBane = true;
+      if (roll.value === 1 && roll.modified > 1) {
+        bonusUsedToDenyBane = true;
+      }
     }
   }
 
