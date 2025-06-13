@@ -31,77 +31,40 @@ function rollDice() {
     return 0;
   }
 
-let bonusUsedToDenyBane = false;
-let bestIndex = -1;
-let bestGain = 0;
+  let bonusUsedToDenyBane = false;
+  let bestIndex = -1;
+  let bestGain = 0;
 
-// 1. Try to maximize successes
-for (let i = 0; i < allRolls.length; i++) {
-  const original = allRolls[i].value;
-  const successBefore = getSuccesses(original);
-  const successAfter = getSuccesses(original + bonus);
-  const gain = successAfter - successBefore;
-
-  if (gain > bestGain) {
-    bestGain = gain;
-    bestIndex = i;
-  }
-}
-
-// 2. If no success gain, try to deny Bane by upgrading a 1
-if (bestGain === 0 && bonus > 0) {
+  // 1. Try to maximize successes
   for (let i = 0; i < allRolls.length; i++) {
-    if (allRolls[i].value === 1) {
+    const original = allRolls[i].value;
+    const successBefore = getSuccesses(original);
+    const successAfter = getSuccesses(original + bonus);
+    const gain = successAfter - successBefore;
+
+    if (gain > bestGain) {
+      bestGain = gain;
       bestIndex = i;
-      break;
     }
   }
-}
 
-// 3. Apply the bonus if valid index
-if (bestIndex !== -1 && bonus > 0) {
-  const roll = allRolls[bestIndex];
-  roll.modified = roll.value + bonus;
-  roll.usedBonus = true;
-
-  if (roll.value === 1 && roll.modified > 1) {
-    bonusUsedToDenyBane = true;
-  }
-}
-
-  // 1. Prioritize upgrading a 1 to deny Bane
-  if (bonus > 0) {
+  // 2. If no success gain, try to deny Bane by upgrading a 1
+  if (bestGain === 0 && bonus > 0) {
     for (let i = 0; i < allRolls.length; i++) {
       if (allRolls[i].value === 1) {
         bestIndex = i;
-        bestGain = 0;
         break;
       }
     }
   }
 
-  // 2. If no 1 to upgrade, try to maximize success gain
-  if (bestIndex === -1) {
-    for (let i = 0; i < allRolls.length; i++) {
-      const original = allRolls[i].value;
-      const successBefore = getSuccesses(original);
-      const successAfter = getSuccesses(original + bonus);
-      const gain = successAfter - successBefore;
-
-      if (gain > bestGain) {
-        bestGain = gain;
-        bestIndex = i;
-      }
-    }
-  }
-
-  // Apply bonus if any
+  // 3. Apply the bonus if valid index
   if (bestIndex !== -1 && bonus > 0) {
-    allRolls[bestIndex].modified += bonus;
-    allRolls[bestIndex].usedBonus = true;
+    const roll = allRolls[bestIndex];
+    roll.modified = roll.value + bonus;
+    roll.usedBonus = true;
 
-    // Check if bonus upgraded a 1 (deny bane)
-    if (allRolls[bestIndex].value === 1 && allRolls[bestIndex].modified > 1) {
+    if (roll.value === 1 && roll.modified > 1) {
       bonusUsedToDenyBane = true;
     }
   }
@@ -121,7 +84,7 @@ if (bestIndex !== -1 && bonus > 0) {
 
   resultHTML += `</ul><h3>Total Successes: ${totalSuccesses}</h3>`;
 
-  // Corrected message order:
+  // Bane message
   if (bonusUsedToDenyBane) {
     resultHTML += `<h3 style="color: orange;">🛡️ Bane denied (1 was upgraded by bonus)</h3>`;
   } else if (hasBane) {
