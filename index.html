@@ -2,98 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="manifest" href="manifest.json" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dice Success Roller</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      margin: 0;
-      background: #f0f0f0;
-    }
-    h1 {
-      font-size: 22px;
-    }
-    label, select, input, button {
-      font-size: 18px;
-      margin-top: 10px;
-      display: block;
-      width: 100%;
-    }
-    button {
-      padding: 10px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .results {
-      margin-top: 20px;
-      font-size: 18px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Dice Success Roller</h1>
-
-  <label for="numDice">Number of Dice:</label>
-  <input type="number" id="numDice" value="5" min="1">
-
-  <label for="dieType">Type of Die:</label>
-  <select id="dieType">
-    <option value="4">d4</option>
-    <option value="6">d6</option>
-    <option value="8">d8</option>
-    <option value="10">d10</option>
-    <option value="12">d12</option>
-    <option value="20" selected>d20</option>
-  </select>
-
-  <button onclick="rollDice()">Roll Dice</button>
-
-  <div class="results" id="results"></div>
-
-  <script>
-    function getSuccesses(value) {
-      if (value >= 20) return 5;
-      if (value >= 16) return 4;
-      if (value >= 12) return 3;
-      if (value >= 8)  return 2;
-      if (value >= 4)  return 1;
-      return 0;
-    }
-
-    function rollDie(sides) {
-      return Math.floor(Math.random() * sides) + 1;
-    }
-
-    function rollDice() {
-      const numDice = parseInt(document.getElementById("numDice").value);
-      const dieType = parseInt(document.getElementById("dieType").value);
-      const resultsDiv = document.getElementById("results");
-
-      let totalSuccesses = 0;
-      let rolls = [];
-
-      for (let i = 0; i < numDice; i++) {
-        const roll = rollDie(dieType);
-        const successes = getSuccesses(roll);
-        totalSuccesses += successes;
-        rolls.push(`${roll} (${successes} success${successes !== 1 ? 'es' : ''})`);
-      }
-
-      resultsDiv.innerHTML = `
-        <strong>Rolls:</strong> ${rolls.join(', ')}<br>
-        <strong>Total Successes:</strong> ${totalSuccesses}
-      `;
-    }
-
-    // PWA service worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
-    }
-  </script>
+  <div class="container">
+    <h1>Dice Success Roller</h1>
+    <input type="text" id="diceInput" placeholder="e.g. 2d8 + 1d6 +1" />
+    <button onclick="rollDice()">Roll</button>
+    <div id="output"></div>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>
