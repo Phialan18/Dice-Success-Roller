@@ -3,7 +3,6 @@ function rollDice() {
   const output = document.getElementById("output");
   output.innerHTML = "";
 
-  // Match dice groups like 2d8, 1d6
   const diceRegex = /(\d+)d(\d+)/g;
   const bonusRegex = /\+(\d+)\s*$/;
 
@@ -23,7 +22,6 @@ function rollDice() {
     }
   }
 
-  // Function to calculate success from a value
   function getSuccesses(val) {
     if (val >= 20) return 5;
     if (val >= 16) return 4;
@@ -33,10 +31,10 @@ function rollDice() {
     return 0;
   }
 
-  // Determine the best die to apply the bonus to
   let bestIndex = -1;
   let bestGain = 0;
 
+  // First pass: try to increase success count
   for (let i = 0; i < allRolls.length; i++) {
     const original = allRolls[i].value;
     const successBefore = getSuccesses(original);
@@ -49,11 +47,24 @@ function rollDice() {
     }
   }
 
-  // Apply bonus if it's beneficial
+  // Second pass: if no success gain, try to remove a Bane
+  if (bestGain === 0 && bonus > 0) {
+    for (let i = 0; i < allRolls.length; i++) {
+      if (allRolls[i].value === 1 && (allRolls[i].value + bonus) > 1) {
+        bestIndex = i;
+        break;
+      }
+    }
+  }
+
+  // Apply bonus if used
   if (bestIndex !== -1 && bonus > 0) {
     allRolls[bestIndex].modified += bonus;
     allRolls[bestIndex].usedBonus = true;
   }
+
+  // Check for Bane
+  const hasBane = allRolls.some(roll => roll.modified === 1);
 
   // Calculate total successes
   let totalSuccesses = 0;
@@ -66,5 +77,11 @@ function rollDice() {
   });
 
   resultHTML += `</ul><h3>Total Successes: ${totalSuccesses}</h3>`;
+  if (hasBane) {
+    resultHTML += `<h3 style="color: red;">⚠️ Bane triggered (at least one die rolled a 1)</h3>`;
+  } else {
+    resultHTML += `<h3 style="color: green;">No Bane</h3>`;
+  }
+
   output.innerHTML = resultHTML;
 }
