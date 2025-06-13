@@ -61,13 +61,11 @@ function rollDice() {
   // 3. Apply the bonus if valid index
   if (bestIndex !== -1 && bonus > 0) {
     const roll = allRolls[bestIndex];
-    if (!roll.usedBonus) {
-      roll.modified = roll.value + bonus;
-      roll.usedBonus = true;
+    roll.modified = roll.value + bonus;
+    roll.usedBonus = true;
 
-      if (roll.value === 1 && roll.modified > 1) {
-        bonusUsedToDenyBane = true;
-      }
+    if (roll.value === 1 && roll.modified > 1) {
+      bonusUsedToDenyBane = true;
     }
   }
 
@@ -97,3 +95,46 @@ function rollDice() {
 
   output.innerHTML = resultHTML;
 }
+
+function saveRoll() {
+  const input = document.getElementById("diceInput").value.trim();
+  if (!input) return;
+
+  const name = prompt("Name this roll setup:");
+  if (!name) return;
+
+  let saved = JSON.parse(localStorage.getItem("savedRolls") || "{}");
+  saved[name] = input;
+  localStorage.setItem("savedRolls", JSON.stringify(saved));
+  renderSavedRolls();
+}
+
+function renderSavedRolls() {
+  const container = document.getElementById("savedRolls");
+  const saved = JSON.parse(localStorage.getItem("savedRolls") || "{}");
+  container.innerHTML = "<h3>Saved Rolls:</h3>";
+
+  Object.entries(saved).forEach(([name, expression]) => {
+    const btn = document.createElement("button");
+    btn.textContent = name;
+    btn.onclick = () => document.getElementById("diceInput").value = expression;
+
+    const del = document.createElement("button");
+    del.textContent = "✖";
+    del.style.marginLeft = "8px";
+    del.onclick = () => {
+      delete saved[name];
+      localStorage.setItem("savedRolls", JSON.stringify(saved));
+      renderSavedRolls();
+    };
+
+    const wrapper = document.createElement("div");
+    wrapper.style.marginBottom = "5px";
+    wrapper.appendChild(btn);
+    wrapper.appendChild(del);
+    container.appendChild(wrapper);
+  });
+}
+
+// Render saved rolls on page load
+window.addEventListener("load", renderSavedRolls);

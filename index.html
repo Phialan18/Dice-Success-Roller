@@ -9,10 +9,25 @@
 <body>
   <div class="container">
     <h1>Dice Success Roller</h1>
-    <input type="text" id="diceInput" placeholder="e.g. 2d8 + 1d6 +1" />
-    <button onclick="rollDice()">Roll</button>
+
+    <!-- Input and buttons -->
+    <div>
+      <input id="diceInput" placeholder="e.g., 2d8 + 1d6 +1" />
+      <button onclick="rollDice()">Roll</button>
+      <button onclick="saveRoll()">Save Roll</button>
+    </div>
+
+    <hr />
+
+    <!-- Saved Rolls appear here -->
+    <div id="savedRolls"></div>
+
+    <hr />
+
+    <!-- Output results -->
     <div id="output"></div>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
