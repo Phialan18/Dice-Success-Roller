@@ -31,46 +31,48 @@ function rollDice() {
     return 0;
   }
 
+  let bonusUsedToDenyBane = false;
   let bestIndex = -1;
   let bestGain = 0;
 
-  // First pass: try to increase success count
-  for (let i = 0; i < allRolls.length; i++) {
-    const original = allRolls[i].value;
-    const successBefore = getSuccesses(original);
-    const successAfter = getSuccesses(original + bonus);
-    const gain = successAfter - successBefore;
-
-    if (gain > bestGain) {
-      bestGain = gain;
-      bestIndex = i;
-    }
-  }
-
-  // Second pass: if no success gain, try to remove a Bane by upgrading a 1
-  if (bestGain === 0 && bonus > 0) {
+  // 1. If any die is 1, prioritize upgrading that die to deny Bane
+  if (bonus > 0) {
     for (let i = 0; i < allRolls.length; i++) {
-      if (allRolls[i].value === 1 && (allRolls[i].value + bonus) > 1) {
+      if (allRolls[i].value === 1) {
         bestIndex = i;
+        bestGain = 0; // no success gain needed, priority is deny bane
         break;
       }
     }
   }
 
-  // Apply bonus if used
-  let bonusUsedToDenyBane = false;
+  // 2. If no 1 to upgrade, try to find best success gain
+  if (bestIndex === -1) {
+    for (let i = 0; i < allRolls.length; i++) {
+      const original = allRolls[i].value;
+      const successBefore = getSuccesses(original);
+      const successAfter = getSuccesses(original + bonus);
+      const gain = successAfter - successBefore;
+
+      if (gain > bestGain) {
+        bestGain = gain;
+        bestIndex = i;
+      }
+    }
+  }
+
+  // Apply bonus if chosen
   if (bestIndex !== -1 && bonus > 0) {
     allRolls[bestIndex].modified += bonus;
     allRolls[bestIndex].usedBonus = true;
 
-    // Check if bonus was used specifically to upgrade a 1 (deny Bane)
+    // Check if bonus upgraded a 1 → deny bane
     if (allRolls[bestIndex].value === 1 && allRolls[bestIndex].modified > 1) {
       bonusUsedToDenyBane = true;
     }
   }
 
-  // Check for Bane:
-  // If any die has original roll 1 AND modified roll is still 1 (not upgraded), Bane triggers.
+  // Check for Bane: any original 1 still unmodified
   const hasBane = allRolls.some(roll => roll.value === 1 && roll.modified === 1);
 
   // Calculate total successes
