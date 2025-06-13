@@ -58,9 +58,15 @@ function rollDice() {
   }
 
   // Apply bonus if used
+  let bonusUsedToDenyBane = false;
   if (bestIndex !== -1 && bonus > 0) {
     allRolls[bestIndex].modified += bonus;
     allRolls[bestIndex].usedBonus = true;
+
+    // Check if bonus was used specifically to upgrade a 1 (deny Bane)
+    if (allRolls[bestIndex].value === 1 && allRolls[bestIndex].modified > 1) {
+      bonusUsedToDenyBane = true;
+    }
   }
 
   // Check for Bane:
@@ -78,8 +84,11 @@ function rollDice() {
   });
 
   resultHTML += `</ul><h3>Total Successes: ${totalSuccesses}</h3>`;
+
   if (hasBane) {
     resultHTML += `<h3 style="color: red;">⚠️ Bane triggered (at least one die rolled a 1)</h3>`;
+  } else if (bonusUsedToDenyBane) {
+    resultHTML += `<h3 style="color: orange;">🛡️ Bane denied (1 was upgraded by bonus)</h3>`;
   } else {
     resultHTML += `<h3 style="color: green;">No Bane</h3>`;
   }
